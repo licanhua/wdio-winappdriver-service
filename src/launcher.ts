@@ -2,8 +2,8 @@ import logger from '@wdio/logger';
 import { ChildProcessByStdio, spawn } from 'child_process';
 import { createWriteStream, ensureFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
-import { Readable } from 'stream';
-import WebdriverIO, { Config } from 'webdriverio';
+import { Readable, Writable } from 'stream';
+import WebdriverIO, { Config, SevereServiceError } from 'webdriverio';
 
 const log = logger('winappdriver-service');
 const LOG_FILE_NAME = 'winappdriver.log';
@@ -13,7 +13,7 @@ export class WinAppDriverLauncher implements WebdriverIO.ServiceInstance {
   args: Array<string>;
   command: string;
   logPath: string;
-  process: ChildProcessByStdio<null, Readable, Readable> | null;
+  process: ChildProcessByStdio<Writable, Readable, Readable> | null;
 
   constructor(options: Record<string, any>, capabilities: WebDriver.DesiredCapabilities, config: Config) {
     this.args = options.args || [];
@@ -29,11 +29,14 @@ export class WinAppDriverLauncher implements WebdriverIO.ServiceInstance {
   async onPrepare(config: Config, capabilities: WebDriver.DesiredCapabilities[]) {
     const isWindows = process.platform === 'win32';
     if (isWindows) {
-      this.process = await this._startWinAppDriver();
+ 
+      await this._startWinAppDriver().then(()=>
+      {
+        if (typeof this.logPath === 'string') {
+          this._redirectLogStream(this.logPath);
+        }
+      });
 
-      if (typeof this.logPath === 'string') {
-        this._redirectLogStream(this.logPath);
-      }
     } else {
       log.info('WinAppDriver-Service is ignored on non-Windows platform');
     }
@@ -46,26 +49,30 @@ export class WinAppDriverLauncher implements WebdriverIO.ServiceInstance {
     }
   }
 
-  _startWinAppDriver(): Promise<ChildProcessByStdio<null, Readable, Readable> | null> {
+  _startWinAppDriver(): Promise<void> {
     return new Promise((resolve, reject) => {
       log.debug(`spawn CLI process: ${this.command} ${this.args.join(' ')}`);
-      let process = spawn(this.command, this.args, { stdio: ['ignore', 'pipe', 'pipe'] });
+      this.process = spawn(this.command, this.args, { stdio: ['pipe', 'pipe', 'pipe'] });
       let error: string;
 
-      process.stdout.on('data', data => {
-        if (data.includes('Windows Application Driver listening for requests')) {
+      this.process.stdout.on('data', data => {
+        let s = data.toString('utf16le');
+        if (s.includes('Press ENTER to exit.')) {
           log.debug(`WinAppriver started with ID: ${process.pid}`);
-          resolve(process);
+          resolve();
+        }
+        else if (s.includes('Failed to initialize')) {
+          throw new SevereServiceError('Failed to start WinAppDriver');
         }
       });
 
-      process.stderr.once('data', err => {
+      this.process.stderr.once('data', err => {
         log.error(err);
       });
 
-      process.once('exit', exitCode => {
+      this.process.once('exit', exitCode => {
         let errorMessage = `CLI exited before timeout (exit code: ${exitCode})`;
-        reject(null);
+        reject();
       });
     });
   }

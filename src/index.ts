@@ -1,2 +1,2 @@
-import { WinAppDriverLauncher } from './service';
-export default WinAppDriverLauncher;
+import { WinAppDriverLauncher } from './launcher';
+export const launcher = WinAppDriverLauncher;

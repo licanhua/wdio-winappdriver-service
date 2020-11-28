@@ -1,9 +1,9 @@
 {
   "name": "wdio-winappdriver-service",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "A WebdriverIO service to start & stop WinAppDriver",
   "main": "dist/index.js",
-  "homepage": "https://github.com/licanhua/winappdriver-service",
+  "homepage": "https://github.com/licanhua/wdio-winappdriver-service",
   "type": "commonjs",
   "scripts": {
     "build": "rimraf ./build && tsc",
