@@ -56,13 +56,24 @@ export class WinAppDriverLauncher implements WebdriverIO.ServiceInstance {
       let error: string;
 
       this.process.stdout.on('data', data => {
-        let s = data.toString('utf16le');
+        let s = data.toString('utf16le'); //utf16
         if (s.includes('Press ENTER to exit.')) {
           log.debug(`WinAppriver started with ID: ${process.pid}`);
           resolve();
         }
         else if (s.includes('Failed to initialize')) {
           throw new SevereServiceError('Failed to start WinAppDriver');
+        }
+        else
+        {
+          let s2 = data.toString(); //utf8
+          if (s2.includes('Press ENTER to exit.')) {
+            log.debug(`WinAppriver started with ID: ${process.pid}`);
+            resolve();
+          }
+          else if (s2.includes('Failed to initialize')) {
+            throw new SevereServiceError('Failed to start WinAppDriver');
+          }
         }
       });
 

@@ -1,6 +1,6 @@
 # WebdriverIO WinAppDriver Service
 
-This service helps you to run the WinAppDriver server seamlessly when running tests with the [WDIO testrunner](https://webdriver.io/guide/testrunner/gettingstarted.html). It starts the [WinAppDriver]https://github.com/Microsoft/WinAppDriver) in a child process.
+This service helps you to run the WinAppDriver server seamlessly when running tests with the [WDIO testrunner](https://webdriver.io/guide/testrunner/gettingstarted.html). It starts the [WinAppDriver](https://github.com/Microsoft/WinAppDriver) in a child process.
 
 ## Installation
 
@@ -33,7 +33,7 @@ export.config = {
     // ...
     services: [
         ['winappdriver', {
-            // Appium service options here
+            // WinAppDriver service options here
             // ...
         }]
     ],
@@ -63,7 +63,7 @@ export.config = {
 
 ### command
 
-To use your own installation of Appium, e.g. globally installed, specify the command which should be started.
+To use your own installation of WinAppDriver, e.g. globally installed, specify the command which should be started.
 
 Type: `String`
 
@@ -98,7 +98,7 @@ export.config = {
     // ...
     services: [
         ['winappdriver', {
-            args: ['10.0.0.10', ' 4723/wd/hub']
+            args: ['10.0.0.10', '4723/wd/hub']
         }]
     ],
     // ...
