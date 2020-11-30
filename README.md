@@ -1,3 +1,5 @@
+[![NPM](https://nodei.co/npm/wdio-winappdriver-service.png)](https://npmjs.org/package/wdio-winappdriver-service)
+
 # WebdriverIO WinAppDriver Service
 
 This service helps you to run the WinAppDriver server seamlessly when running tests with the [WDIO testrunner](https://webdriver.io/guide/testrunner/gettingstarted.html). It starts the [WinAppDriver](https://github.com/Microsoft/WinAppDriver) in a child process.
